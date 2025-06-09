@@ -1,0 +1,23 @@
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import express from "express";
+import { Request, Response,NextFunction } from 'express';
+import { responseHandler } from "./utils/responseHandler";
+import ErrorHandler from "./utils/errorHandler";
+import userRoutes from "./routes/userRoutes"
+import dotenv from 'dotenv';
+dotenv.config();
+const app=express();
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static('public'));
+app.use(cookieParser());
+
+app.use('/',userRoutes);
+
+
+app.listen(process.env.PORT,()=>{
+    console.log(`http://localhost:${process.env.PORT}`);
+})

@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    id Int @id @default(autoincrement())
+    name String
+    email String @unique
+    password String 
+    formStatus String @default("not filled")
+    isLawyer Boolean @default(false)
+    isAdmin Boolean @default(false)
+}
+
+model Lawyer {
+    id Int @id @default(autoincrement())
+    name String
+    email String @unique
+    location String 
+    address String
+    barLicenseNumber String
+    Specialization String
+    court String
+    practiceSince Int
+}
+
+model LawyerReq {
+    id Int @id @default(autoincrement())
+    name String
+    email String @unique
+    location String 
+    address String
+    barLicenseNumber String
+    Specialization String
+    court String
+    practiceSince Int
+    
+    // Just store the user ID
+    userId Int
+}
+
+model UserReq{
+    id Int @id @default(autoincrement())
+    name String
+    email String
+    contact Int
+    caseDesc String
+    userID Int
+    laywerID Int
+}
