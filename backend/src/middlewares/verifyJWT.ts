@@ -6,16 +6,19 @@ import { prisma } from "../lib/db";
 
 export const verifyJwt=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
     try{
+        //token extraction from cookies
         const token=req.cookies.accessToken;
         if(!token){
             throw new ErrorHandler(400,false,"session terminated, please login again");
         }
+        //verifying token
         const decode=jwt.verify(token,process.env.access_key_str!);
         const email:string=(decode as JwtPayload).email;
         const User=await prisma.user.findUnique({where:{email:email}});
         if(!User){
             throw new ErrorHandler(400,false,"Unauthorized access");
         }
+        //success, moving to next funtion
         req.user=User;
         next();
     }catch(error:any){

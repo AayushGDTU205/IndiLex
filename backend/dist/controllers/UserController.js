@@ -37,7 +37,7 @@ exports.postSignup = (0, responseHandler_1.responseHandler)((req, res, next) => 
         }
         // we will find user in DB to check for duplicate acconts
         const User = yield db_1.prisma.user.findUnique({ where: { email: email } });
-        if (User !== null) {
+        if (User) {
             throw new errorHandler_1.default(400, false, "User with same email exists, Go to Login");
         }
         // hashing password for security
@@ -46,7 +46,7 @@ exports.postSignup = (0, responseHandler_1.responseHandler)((req, res, next) => 
             throw new errorHandler_1.default(400, false, "server error");
         }
         // insert into DB
-        yield db_1.prisma.user.create({
+        const newUser = yield db_1.prisma.user.create({
             data: {
                 email,
                 name,
@@ -132,6 +132,7 @@ exports.postSignup = (0, responseHandler_1.responseHandler)((req, res, next) => 
         return res.status(200).json({
             success: true,
             message: "signup successful",
+            data: newUser
         });
     }
     catch (error) {
@@ -178,7 +179,8 @@ exports.postLogin = (0, responseHandler_1.responseHandler)((req, res, next) => _
         // success
         res.status(200).cookie("accessToken", AccessToken, options).json({
             message: "login success",
-            success: true
+            success: true,
+            data: User
         });
     }
     catch (error) {
@@ -187,6 +189,7 @@ exports.postLogin = (0, responseHandler_1.responseHandler)((req, res, next) => _
 }));
 exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        //obtaining details from user
         const { name, email, location, address, barLicenseNumber, Specialization, court, practiceSince } = req.body;
         const fields = ["name", "email", "location", "address", "barLicenseNumber", "Specialization", "court", "practiceSince"];
         const bodyFields = Object.keys(req.body);
@@ -199,14 +202,17 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
         if (missing.length > 0) {
             throw new errorHandler_1.default(400, false, "kindly fill all the fields");
         }
+        // checking if user exists
         const User = yield db_1.prisma.user.findUnique({ where: { email: email } });
         if (!User) {
             throw new errorHandler_1.default(400, false, "user not found");
         }
+        // checking if form is not being filled again
         if (User.formStatus === "filled") {
             throw new errorHandler_1.default(400, false, "cannot fill the form again since it has been filled once");
         }
-        yield db_1.prisma.lawyerReq.create({
+        // inserting lawyer registration into DB for admin to check up
+        const newReq = yield db_1.prisma.lawyerReq.create({
             data: {
                 name,
                 email,
@@ -219,6 +225,7 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
                 userId: User.id
             }
         });
+        // updating form status
         const updateUser = yield db_1.prisma.user.update({
             where: {
                 email: User.email
@@ -227,7 +234,7 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
                 formStatus: "filled"
             }
         });
-        // inserting this into DB
+        // sending mail upon form submission
         const transporter = nodemailer_1.default.createTransport({
             service: "gmail",
             auth: {
@@ -296,9 +303,11 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
 </html>
 "`, // HTML body
         });
+        // success
         res.status(200).json({
             message: "request sent",
-            success: true
+            success: true,
+            data: newReq
         });
     }
     catch (error) {

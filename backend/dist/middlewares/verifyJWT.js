@@ -19,16 +19,19 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = require("../lib/db");
 exports.verifyJwt = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        //token extraction from cookies
         const token = req.cookies.accessToken;
         if (!token) {
             throw new errorHandler_1.default(400, false, "session terminated, please login again");
         }
+        //verifying token
         const decode = jsonwebtoken_1.default.verify(token, process.env.access_key_str);
         const email = decode.email;
         const User = yield db_1.prisma.user.findUnique({ where: { email: email } });
         if (!User) {
             throw new errorHandler_1.default(400, false, "Unauthorized access");
         }
+        //success, moving to next funtion
         req.user = User;
         next();
     }

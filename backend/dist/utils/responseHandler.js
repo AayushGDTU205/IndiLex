@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.responseHandler = void 0;
+//to send the server to frontend 
 const responseHandler = (func) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {

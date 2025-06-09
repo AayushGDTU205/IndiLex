@@ -11,4 +11,5 @@ class ErrorHandler extends Error {
         this.status = false;
     }
 }
+// error generation
 exports.default = ErrorHandler;

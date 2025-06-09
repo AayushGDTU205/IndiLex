@@ -18,6 +18,7 @@ const express_1 = __importDefault(require("express"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const verifyJWT_1 = require("./middlewares/verifyJWT");
 const dotenv_1 = __importDefault(require("dotenv"));
+const AdminCheck_1 = require("./middlewares/AdminCheck");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
@@ -25,9 +26,9 @@ app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.static('public'));
 app.use((0, cookie_parser_1.default)());
 app.use('/', userRoutes_1.default);
-app.get('/verify', verifyJWT_1.verifyJwt, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/verify', verifyJWT_1.verifyJwt, AdminCheck_1.adminCheck, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({
-        message: "token success"
+        message: "admin check success"
     });
 }));
 app.listen(process.env.PORT, () => {

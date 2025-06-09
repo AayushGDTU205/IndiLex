@@ -6,5 +6,5 @@ class ErrorHandler extends Error{
         this.status=false;
     }
 }
-
+// error generation
 export default ErrorHandler;

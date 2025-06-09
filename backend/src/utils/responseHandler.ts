@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-
+//to send the server to frontend 
 export const responseHandler = (
   func: (req: Request, res: Response, next: NextFunction) => Promise<any>
 ): RequestHandler => {

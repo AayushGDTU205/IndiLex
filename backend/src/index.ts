@@ -7,6 +7,7 @@ import ErrorHandler from "./utils/errorHandler";
 import userRoutes from "./routes/userRoutes"
 import { verifyJwt } from "./middlewares/verifyJWT";
 import dotenv from 'dotenv';
+import { adminCheck } from "./middlewares/AdminCheck";
 dotenv.config();
 const app=express();
 
@@ -17,9 +18,9 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 app.use('/',userRoutes);
-app.get('/verify',verifyJwt,async(req,res)=>{
+app.get('/verify',verifyJwt,adminCheck,async(req,res)=>{
     res.json({
-        message:"token success"
+        message:"admin check success"
     })
 })
 
