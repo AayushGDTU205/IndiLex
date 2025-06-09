@@ -39,7 +39,7 @@ model LawyerReq {
     Specialization String
     court String
     practiceSince Int
-    userId Int
+    userId Int @unique
 }
 
 model UserReq{
@@ -48,6 +48,6 @@ model UserReq{
     email String
     contact Int
     caseDesc String
-    userID Int
-    laywerID Int
+    userID Int @unique
+    laywerID Int @unique
 }

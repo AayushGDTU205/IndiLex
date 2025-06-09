@@ -218,6 +218,34 @@ export const postLawyerFillUp=responseHandler(async(req:Request<{},{},requestBod
         if(missing.length>0){
             throw new ErrorHandler(400,false,"kindly fill all the fields");
         }
+        const User=await prisma.user.findUnique({where:{email:email}});
+        if(!User){
+          throw new ErrorHandler(400,false,"user not found");
+        }
+        if(User.formStatus==="filled"){
+          throw new ErrorHandler(400,false,"cannot fill the form again since it has been filled once");
+        }
+        await prisma.lawyerReq.create({
+          data:{
+            name,
+            email,
+            location,
+            address,
+            barLicenseNumber,
+            Specialization,
+            court,
+            practiceSince:+practiceSince,
+            userId:User.id
+          }
+        })
+        const updateUser=await prisma.user.update({
+          where:{
+            email:User.email
+          },
+          data:{
+            formStatus:"filled"
+          }
+        })
         // inserting this into DB
         const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -231,7 +259,65 @@ export const postLawyerFillUp=responseHandler(async(req:Request<{},{},requestBod
             to: email,
             subject: `Hello ${name}`,
             text: "Hello world?", // plain‑text body
-            html: `"<b>Welcome Aboard to IndiLex ${name}</b>"`, // HTML body
+            html: `<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .container {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: auto;
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 30px;
+        color: #333;
+      }
+      .header {
+        text-align: center;
+        color: #2c3e50;
+      }
+      .highlight {
+        color: #2c7be5;
+        font-weight: bold;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="header">Welcome to <span class="highlight">IndiLex</span>!</h2>
+      <p>Hi <strong>${name}</strong>,</p>
+      <p>
+        Thank you for submitting your Lawyer Registration Request on <strong>IndiLex</strong>.
+        We appreciate your interest in joining our legal platform.
+      </p>
+      <p>
+        Our team will review your submission and verify the provided information. You’ll be notified via email once your request is approved or if we need any further details.
+      </p>
+      <p>
+        In the meantime, if you have any questions or wish to get in touch, feel free to reply to this email.
+      </p>
+      <p>
+        Thanks again for your interest,<br>
+        <strong>The IndiLex Team</strong>
+      </p>
+      <div class="footer">
+        This is an automated message. Please do not reply directly to this email.
+      </div>
+    </div>
+  </body>
+</html>
+"`, // HTML body
+        })
+        res.status(200).json({
+          message:"request sent",
+          success:true
         })
     }
     catch(error:any){
