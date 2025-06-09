@@ -5,6 +5,7 @@ import { Request, Response,NextFunction } from 'express';
 import { responseHandler } from "./utils/responseHandler";
 import ErrorHandler from "./utils/errorHandler";
 import userRoutes from "./routes/userRoutes"
+import { verifyJwt } from "./middlewares/verifyJWT";
 import dotenv from 'dotenv';
 dotenv.config();
 const app=express();
@@ -16,6 +17,11 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 app.use('/',userRoutes);
+app.get('/verify',verifyJwt,async(req,res)=>{
+    res.json({
+        message:"token success"
+    })
+})
 
 
 app.listen(process.env.PORT,()=>{
