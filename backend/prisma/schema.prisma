@@ -39,8 +39,6 @@ model LawyerReq {
     Specialization String
     court String
     practiceSince Int
-    
-    // Just store the user ID
     userId Int
 }
 

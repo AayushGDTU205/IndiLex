@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { responseHandler } from "../utils/responseHandler"
-import { NextFunction, Request, Response } from "express"
+import { CookieOptions, NextFunction, Request, Response } from "express"
 import ErrorHandler from "../utils/errorHandler"
 import nodemailer from "nodemailer"
 import { prisma } from "../lib/db"
@@ -59,7 +59,7 @@ export const postSignup=responseHandler(async(req:Request<{},{},requestBody>,res
         const info = await transporter.sendMail({
             from: '"IndiLex" <no-reply@indilex.in>',
             to: email,
-            subject: `Hello ${name}`,
+            subject: `Welcome to IndiLex ${name}`,
             text: "Hello world?", // plain‑text body
             html: `<!DOCTYPE html>
 <html>
@@ -162,9 +162,32 @@ export const postLogin=responseHandler(async(req:Request<{},{},requestBody2>,res
             throw new ErrorHandler(400,false,"incorrect password, please try again");
         }
         // token making
-        
+        const AccessToken=jwt.sign(
+          {
+            userID:User.id,
+            email:User.email,
+            name:User.name
+          },
+          process.env.access_key_str!,
+          {
+            expiresIn:"10h"
+          }
+        )
+        if(!AccessToken){
+          throw new ErrorHandler(400,false,"access failure, try again");
+        }
         // cookie making
+        const options: CookieOptions = {
+          httpOnly: true,
+          expires: new Date(Date.now() + 31557600 * 1000), // 1 year in milliseconds
+          secure: true,
+          sameSite: 'none', // requires HTTPS
+        };
         // success
+        res.status(200).cookie("accessToken",AccessToken,options).json({
+          message:"login success",
+          success:true
+        })
     }
     catch(error:any){
         throw new ErrorHandler(error.statusCode || 500,false,error.message || "server failure");
@@ -199,12 +222,12 @@ export const postLawyerFillUp=responseHandler(async(req:Request<{},{},requestBod
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "nestedloop311@gmail.com",
+                user: process.env.gmail_account,
                 pass: process.env.GMAIL_APP_PASSWORD,
             },
         });
         const info = await transporter.sendMail({
-            from: '"IndiLex" <nestedloop311@gmail.com>',
+            from: '"IndiLex" <no-reply@indilex.in>',
             to: email,
             subject: `Hello ${name}`,
             text: "Hello world?", // plain‑text body

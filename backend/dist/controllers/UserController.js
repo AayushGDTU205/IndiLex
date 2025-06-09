@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const responseHandler_1 = require("../utils/responseHandler");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
@@ -157,8 +158,28 @@ exports.postLogin = (0, responseHandler_1.responseHandler)((req, res, next) => _
             throw new errorHandler_1.default(400, false, "incorrect password, please try again");
         }
         // token making
+        const AccessToken = jsonwebtoken_1.default.sign({
+            userID: User.id,
+            email: User.email,
+            name: User.name
+        }, process.env.access_key_str, {
+            expiresIn: "10h"
+        });
+        if (!AccessToken) {
+            throw new errorHandler_1.default(400, false, "access failure, try again");
+        }
         // cookie making
+        const options = {
+            httpOnly: true,
+            expires: new Date(Date.now() + 31557600 * 1000), // 1 year in milliseconds
+            secure: true,
+            sameSite: 'none', // requires HTTPS
+        };
         // success
+        res.status(200).cookie("accessToken", AccessToken, options).json({
+            message: "login success",
+            success: true
+        });
     }
     catch (error) {
         throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");
@@ -182,12 +203,12 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
         const transporter = nodemailer_1.default.createTransport({
             service: "gmail",
             auth: {
-                user: "nestedloop311@gmail.com",
+                user: process.env.gmail_account,
                 pass: process.env.GMAIL_APP_PASSWORD,
             },
         });
         const info = yield transporter.sendMail({
-            from: '"IndiLex" <nestedloop311@gmail.com>',
+            from: '"IndiLex" <no-reply@indilex.in>',
             to: email,
             subject: `Hello ${name}`,
             text: "Hello world?", // plain‑text body
