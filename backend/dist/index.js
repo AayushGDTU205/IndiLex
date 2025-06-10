@@ -19,9 +19,9 @@ app.use(express_1.default.static('public'));
 app.use((0, cookie_parser_1.default)());
 app.use('/', userRoutes_1.default);
 app.use('/admin', verifyJWT_1.verifyJwt, AdminCheck_1.adminCheck, adminRoutes_1.default);
-// app.get('/verify',verifyJwt,adminCheck,async(req,res)=>{
+// app.get('/verify',verifyJwt,lawyerCheck,async(req,res)=>{
 //     res.json({
-//         message:"admin check success"
+//         message:"lawyer check success"
 //     })
 // })
 app.listen(process.env.PORT, () => {
