@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
+exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const responseHandler_1 = require("../utils/responseHandler");
@@ -308,6 +308,19 @@ exports.postLawyerFillUp = (0, responseHandler_1.responseHandler)((req, res, nex
             message: "request sent",
             success: true,
             data: newReq
+        });
+    }
+    catch (error) {
+        throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");
+    }
+}));
+exports.getLawyers = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let lawyers = yield db_1.prisma.lawyer.findMany();
+        res.status(200).json({
+            success: true,
+            message: "retrieved lawyers",
+            data: lawyers
         });
     }
     catch (error) {

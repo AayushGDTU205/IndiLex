@@ -333,3 +333,17 @@ export const postLawyerFillUp=responseHandler(async(req:Request<{},{},requestBod
         throw new ErrorHandler(error.statusCode||500,false,error.message|| "server failure");
     }
 })
+
+export const getLawyers=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+      let lawyers=await prisma.lawyer.findMany();
+      res.status(200).json({
+        success:true,
+        message:"retrieved lawyers",
+        data:lawyers
+      })
+    }
+    catch(error:any){
+      throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure");
+    }
+})

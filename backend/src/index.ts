@@ -5,6 +5,7 @@ import { Request, Response,NextFunction } from 'express';
 import { responseHandler } from "./utils/responseHandler";
 import ErrorHandler from "./utils/errorHandler";
 import userRoutes from "./routes/userRoutes"
+import adminRoutes from "./routes/adminRoutes"
 import { verifyJwt } from "./middlewares/verifyJWT";
 import dotenv from 'dotenv';
 import { adminCheck } from "./middlewares/AdminCheck";
@@ -18,11 +19,12 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 app.use('/',userRoutes);
-app.get('/verify',verifyJwt,adminCheck,async(req,res)=>{
-    res.json({
-        message:"admin check success"
-    })
-})
+app.use('/admin',verifyJwt,adminCheck,adminRoutes);
+// app.get('/verify',verifyJwt,adminCheck,async(req,res)=>{
+//     res.json({
+//         message:"admin check success"
+//     })
+// })
 
 
 app.listen(process.env.PORT,()=>{
