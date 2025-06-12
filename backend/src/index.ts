@@ -22,6 +22,7 @@ app.use(cookieParser());
 
 app.use('/',userRoutes);
 app.use('/admin',verifyJwt,adminCheck,adminRoutes);
+app.use('/lawyer',verifyJwt,lawyerCheck,lawyerRoutes);
 // app.get('/verify',verifyJwt,lawyerCheck,async(req,res)=>{
 //     res.json({
 //         message:"lawyer check success"

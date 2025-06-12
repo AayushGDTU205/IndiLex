@@ -347,3 +347,130 @@ export const getLawyers=responseHandler(async(req:Request,res:Response,next:Next
       throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure");
     }
 })
+
+// model UserReq{
+//     id Int @id @default(autoincrement())
+//     name String
+//     email String
+//     contact Int
+//     caseDesc String
+//     userID Int @unique
+//     laywerID Int @unique
+// }
+
+interface requestBody4{
+  name:string,
+  email:string,
+  contact:number,
+  caseDesc:string,
+  lawyerID:number
+}
+
+export const sendReqToLawyer=responseHandler(async(req:Request<{},{},requestBody4>,res:Response,next:NextFunction)=>{
+  try{
+    const {name,email,contact,caseDesc,lawyerID}=req.body;
+    const fields:Array<string>=["name","email","contact","caseDesc","lawyerID"];
+    const bodyFields:Array<string>=Object.keys(req.body);
+    const missing:Array<string>=fields.filter((f:string)=>{
+        if(!bodyFields.includes(f))return true;
+        else return false;
+    })
+    if(missing.length>0){
+        throw new ErrorHandler(400,false,"kindly fill all the fields");
+    }
+    const retLawyer=await prisma.lawyer.findUnique({where:{id:+lawyerID}});
+    if(!retLawyer){
+      throw new ErrorHandler(400,false,"lawyer not found");
+    }
+    const userID=req.user?.id;
+    if (!userID) {
+      throw new ErrorHandler(401, false, "Unauthorized: User ID not found");
+    }
+    if(req.user?.email===retLawyer.email){
+      throw new ErrorHandler(400,false,"invalid");
+    }
+    
+    let newReq=await prisma.userReq.create({
+      data:{
+        name:name,
+        email:email,
+        contact:+contact,
+        caseDesc,
+        laywerID:+lawyerID,
+        userID:+userID
+      }
+    })
+    const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.gmail_account,
+                pass: process.env.GMAIL_APP_PASSWORD,
+            },
+    });
+    const info = await transporter.sendMail({
+            from: '"IndiLex" <no-reply@indilex.in>',
+            to: retLawyer.email,
+            subject: `📬 New Case Request from a Client`,
+            text: "Hello world?", // plain‑text body
+            html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <h2 style="color: #1a73e8;">Hello ${retLawyer.name},</h2>
+
+    <p>You’ve received a <strong>new legal case request</strong> through <strong>IndiLex</strong>.</p>
+
+    <p><strong>Client Details:</strong></p>
+    <ul style="padding-left: 16px;">
+      <li><strong>Name:</strong> ${req.user?.name}</li>
+      <li><strong>Email:</strong> ${req.user?.email}</li>
+      <li><strong>Contact:</strong> ${contact}</li>
+    </ul>
+
+    <p><strong>Case Description:</strong></p>
+    <div style="background-color: #f1f1f1; padding: 12px; border-radius: 6px;">
+      ${caseDesc}
+    </div>
+
+    <p>Log in to your IndiLex dashboard to take action on this request.</p>
+
+    <p>Regards,<br/><strong>Team IndiLex</strong></p>
+
+    <hr style="margin-top: 30px;">
+    <small style="color: #888;">You are receiving this email because you are registered as a lawyer on IndiLex</small>
+  </div>`, // HTML body
+        })
+    const info1 = await transporter.sendMail({
+            from: '"IndiLex" <no-reply@indilex.in>',
+            to: req.user?.email,
+            subject: `✅ Case Request Sent Successfully`,
+            text: "Hello world?", // plain‑text body
+            html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <h2 style="color: #34a853;">Hi ${req.user?.name},</h2>
+
+    <p>Your case request has been <strong>successfully sent</strong> to <strong>${retLawyer.name}</strong> via <strong>IndiLex</strong>.</p>
+
+    <p><strong>Case Summary:</strong></p>
+    <div style="background-color: #f1f1f1; padding: 12px; border-radius: 6px;">
+      ${caseDesc}
+    </div>
+
+    <p>The lawyer will review your request and may contact you shortly using the details you provided.</p>
+
+    <p>Thank you for using IndiLex to seek legal help.</p>
+
+    <p>Best wishes,<br/><strong>Team IndiLex</strong></p>
+
+    <hr style="margin-top: 30px;">
+    <small style="color: #888;">This is an automated confirmation email from IndiLex</small>
+  </div>`, // HTML body
+        })
+
+    
+    res.status(200).json({
+      message:"request sent",
+      success:true,
+      data:[retLawyer,newReq]
+    })
+  }
+  catch(error:any){
+    throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure");
+  }
+})

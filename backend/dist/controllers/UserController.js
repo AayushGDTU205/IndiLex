@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
+exports.sendReqToLawyer = exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const responseHandler_1 = require("../utils/responseHandler");
@@ -321,6 +321,114 @@ exports.getLawyers = (0, responseHandler_1.responseHandler)((req, res, next) => 
             success: true,
             message: "retrieved lawyers",
             data: lawyers
+        });
+    }
+    catch (error) {
+        throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");
+    }
+}));
+exports.sendReqToLawyer = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e, _f;
+    try {
+        const { name, email, contact, caseDesc, lawyerID } = req.body;
+        const fields = ["name", "email", "contact", "caseDesc", "lawyerID"];
+        const bodyFields = Object.keys(req.body);
+        const missing = fields.filter((f) => {
+            if (!bodyFields.includes(f))
+                return true;
+            else
+                return false;
+        });
+        if (missing.length > 0) {
+            throw new errorHandler_1.default(400, false, "kindly fill all the fields");
+        }
+        const retLawyer = yield db_1.prisma.lawyer.findUnique({ where: { id: +lawyerID } });
+        if (!retLawyer) {
+            throw new errorHandler_1.default(400, false, "lawyer not found");
+        }
+        const userID = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        if (!userID) {
+            throw new errorHandler_1.default(401, false, "Unauthorized: User ID not found");
+        }
+        if (((_b = req.user) === null || _b === void 0 ? void 0 : _b.email) === retLawyer.email) {
+            throw new errorHandler_1.default(400, false, "invalid");
+        }
+        let newReq = yield db_1.prisma.userReq.create({
+            data: {
+                name: name,
+                email: email,
+                contact: +contact,
+                caseDesc,
+                laywerID: +lawyerID,
+                userID: +userID
+            }
+        });
+        const transporter = nodemailer_1.default.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.gmail_account,
+                pass: process.env.GMAIL_APP_PASSWORD,
+            },
+        });
+        const info = yield transporter.sendMail({
+            from: '"IndiLex" <no-reply@indilex.in>',
+            to: retLawyer.email,
+            subject: `📬 New Case Request from a Client`,
+            text: "Hello world?", // plain‑text body
+            html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <h2 style="color: #1a73e8;">Hello ${retLawyer.name},</h2>
+
+    <p>You’ve received a <strong>new legal case request</strong> through <strong>IndiLex</strong>.</p>
+
+    <p><strong>Client Details:</strong></p>
+    <ul style="padding-left: 16px;">
+      <li><strong>Name:</strong> ${(_c = req.user) === null || _c === void 0 ? void 0 : _c.name}</li>
+      <li><strong>Email:</strong> ${(_d = req.user) === null || _d === void 0 ? void 0 : _d.email}</li>
+      <li><strong>Contact:</strong> ${contact}</li>
+    </ul>
+
+    <p><strong>Case Description:</strong></p>
+    <div style="background-color: #f1f1f1; padding: 12px; border-radius: 6px;">
+      ${caseDesc}
+    </div>
+
+    <p>Log in to your IndiLex dashboard to take action on this request.</p>
+
+    <p>Regards,<br/><strong>Team IndiLex</strong></p>
+
+    <hr style="margin-top: 30px;">
+    <small style="color: #888;">You are receiving this email because you are registered as a lawyer on IndiLex</small>
+  </div>`, // HTML body
+        });
+        const info1 = yield transporter.sendMail({
+            from: '"IndiLex" <no-reply@indilex.in>',
+            to: (_e = req.user) === null || _e === void 0 ? void 0 : _e.email,
+            subject: `✅ Case Request Sent Successfully`,
+            text: "Hello world?", // plain‑text body
+            html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <h2 style="color: #34a853;">Hi ${(_f = req.user) === null || _f === void 0 ? void 0 : _f.name},</h2>
+
+    <p>Your case request has been <strong>successfully sent</strong> to <strong>${retLawyer.name}</strong> via <strong>IndiLex</strong>.</p>
+
+    <p><strong>Case Summary:</strong></p>
+    <div style="background-color: #f1f1f1; padding: 12px; border-radius: 6px;">
+      ${caseDesc}
+    </div>
+
+    <p>The lawyer will review your request and may contact you shortly using the details you provided.</p>
+
+    <p>Thank you for using IndiLex to seek legal help.</p>
+
+    <p>Best wishes,<br/><strong>Team IndiLex</strong></p>
+
+    <hr style="margin-top: 30px;">
+    <small style="color: #888;">This is an automated confirmation email from IndiLex</small>
+  </div>`, // HTML body
+        });
+        res.status(200).json({
+            message: "request sent",
+            success: true,
+            data: [retLawyer, newReq]
         });
     }
     catch (error) {

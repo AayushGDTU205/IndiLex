@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLawyers, postLawyerFillUp, postLogin, postSignup } from "../controllers/UserController";
+import { getLawyers, postLawyerFillUp, postLogin, postSignup, sendReqToLawyer } from "../controllers/UserController";
 import { verifyJwt } from "../middlewares/verifyJWT";
 const router=Router();
 
@@ -12,4 +12,5 @@ router.post('/login',postLogin);
 router.post('/SignUp',postSignup);
 router.post('/LaywerFillUp',verifyJwt,postLawyerFillUp);
 router.get('/getLawyers',verifyJwt,getLawyers);
+router.post('/sendReqToLawyer',verifyJwt,sendReqToLawyer);
 export default router;

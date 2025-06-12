@@ -48,6 +48,17 @@ model UserReq{
     email String
     contact Int
     caseDesc String
-    userID Int @unique
-    laywerID Int @unique
+    userID Int 
+    laywerID Int 
+}
+
+model ReviewedUserReq{
+  id Int @id @default(autoincrement())
+  name String
+    email String
+    contact Int
+    caseDesc String
+    userID Int 
+    laywerID Int 
+    status String
 }
