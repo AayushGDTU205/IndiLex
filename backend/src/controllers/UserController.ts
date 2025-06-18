@@ -5,6 +5,7 @@ import { CookieOptions, NextFunction, Request, Response } from "express"
 import ErrorHandler from "../utils/errorHandler"
 import nodemailer from "nodemailer"
 import { prisma } from "../lib/db"
+import axios from "axios"
 
 interface requestBody{
     name:string,
@@ -472,5 +473,56 @@ export const sendReqToLawyer=responseHandler(async(req:Request<{},{},requestBody
   }
   catch(error:any){
     throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure");
+  }
+})
+
+export const getKhabar=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
+  try {
+    const API_KEY = process.env.NEWS_API_KEY;
+ 
+    const response = await axios.get('https://newsapi.org/v2/everything', {
+      params: {
+        q:'india AND (law OR judgement OR court OR legislation OR "supreme court" OR "high court")',
+        language: 'en',
+        sortBy: 'publishedAt',
+        pageSize: 100,
+        apiKey: API_KEY,
+        domains: 'barandbench.com,livelaw.in,indiatoday.in,hindustantimes.com,thehindu.com,timesofindia.indiatimes.com,livemint.com'
+      }
+    });
+
+    if (response.data.status === 'ok') {
+      // Filter and clean the articles
+      const articles = response.data.articles as Array<{
+        title: string;
+        description: string;
+        url: string;
+        urlToImage: string;
+        publishedAt: string;
+        source: { name: string };
+        author: string;
+      }>;
+      const filteredArticles = articles
+      .filter(article => 
+        article.title && 
+        article.description && 
+        article.urlToImage && 
+        !article.title.includes('[Removed]') &&
+        !article.description.includes('[Removed]')
+      );
+
+const limitedArticles = filteredArticles.slice(0, 50); // Or 100, your choice
+
+res.status(200).json({
+  success: true,
+  data: limitedArticles,
+  total: limitedArticles.length
+});
+    } else {
+      throw new ErrorHandler(400,false,'Failed to fetch news from NewsAPI');
+    }
+  }
+  catch(error:any){
+    throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure")
   }
 })

@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendReqToLawyer = exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
+exports.getKhabar = exports.sendReqToLawyer = exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const responseHandler_1 = require("../utils/responseHandler");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const db_1 = require("../lib/db");
+const axios_1 = __importDefault(require("axios"));
 exports.postSignup = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // obtaining details entered by user
@@ -430,6 +431,43 @@ exports.sendReqToLawyer = (0, responseHandler_1.responseHandler)((req, res, next
             success: true,
             data: [retLawyer, newReq]
         });
+    }
+    catch (error) {
+        throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");
+    }
+}));
+exports.getKhabar = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const API_KEY = process.env.NEWS_API_KEY;
+        const response = yield axios_1.default.get('https://newsapi.org/v2/everything', {
+            params: {
+                q: 'india AND (law OR judgement OR court OR legislation OR "supreme court" OR "high court")',
+                language: 'en',
+                sortBy: 'publishedAt',
+                pageSize: 100,
+                apiKey: API_KEY,
+                domains: 'barandbench.com,livelaw.in,indiatoday.in,hindustantimes.com,thehindu.com,timesofindia.indiatimes.com,livemint.com'
+            }
+        });
+        if (response.data.status === 'ok') {
+            // Filter and clean the articles
+            const articles = response.data.articles;
+            const filteredArticles = articles
+                .filter(article => article.title &&
+                article.description &&
+                article.urlToImage &&
+                !article.title.includes('[Removed]') &&
+                !article.description.includes('[Removed]'));
+            const limitedArticles = filteredArticles.slice(0, 50); // Or 100, your choice
+            res.status(200).json({
+                success: true,
+                data: limitedArticles,
+                total: limitedArticles.length
+            });
+        }
+        else {
+            throw new errorHandler_1.default(400, false, 'Failed to fetch news from NewsAPI');
+        }
     }
     catch (error) {
         throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");

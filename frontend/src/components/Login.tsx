@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Scale, Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import instance from '../utils/Axios';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux/store/store';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -20,36 +27,63 @@ const Login = () => {
     if (error) setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+  const userData = useSelector((state: RootState) => state.userReducer);
 
-    try {
-      const response = await fetch('/api/auth/login', { // Adjust this URL to match your backend endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important for cookies
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Login successful - redirect to dashboard or home
-        window.location.href = '/dashboard'; // Adjust redirect path as needed
-        // Or you can use: alert('Login successful!') for testing
-      } else {
-        setError(data.message || 'Login failed');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+// Add this useEffect to monitor state changes
+useEffect(() => {
+    
+    // Check if user is logged in (adjust this condition based on your state structure)
+    if (userData && userData.isLoggedIn) {
+      navigate('/dashboard');
     }
-  };
+    
+  }, [userData, navigate]);
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
+
+  try {
+    
+    
+    const response = await instance.post('/login', formData, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = response.data;
+
+
+    if (data.success) {
+      
+      // Dispatch the action
+      dispatch({ type: 'SET_USER', payload: data.data });
+      
+      
+      // Add a small delay before redirect to see if state updates
+      // setTimeout(() => {
+      //   // window.location.href = '/dashboard';
+      // }, 500);
+      
+    } else {
+      console.log('Login failed:', data.message);
+      setError(data.message || 'Login failed');
+    }
+  } catch (err: any) {
+    console.error('Login error:', err);
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.message) {
+      setError(err.message);
+    } else {
+      setError('Network error. Please try again.');
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const isFormValid = formData.email && formData.password;
 

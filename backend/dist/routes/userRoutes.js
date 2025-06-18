@@ -13,4 +13,5 @@ router.post('/SignUp', UserController_1.postSignup);
 router.post('/LaywerFillUp', verifyJWT_1.verifyJwt, UserController_1.postLawyerFillUp);
 router.get('/getLawyers', verifyJWT_1.verifyJwt, UserController_1.getLawyers);
 router.post('/sendReqToLawyer', verifyJWT_1.verifyJwt, UserController_1.sendReqToLawyer);
+router.get('/news', verifyJWT_1.verifyJwt, UserController_1.getKhabar);
 exports.default = router;

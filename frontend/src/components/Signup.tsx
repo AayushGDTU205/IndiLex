@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Scale, Eye, EyeOff, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import instance from '../utils/Axios';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -47,43 +48,48 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+  e.preventDefault();
+  
+  if (!validateForm()) {
+    return;
+  }
+
+  setIsLoading(true);
+  setError('');
+
+  try {
+    const response = await instance.post('/SignUp', formData, {
+      withCredentials: true, // Important for cookies
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = response.data;
+
+    if (data.success) {
+      // Signup successful
+      setSuccess(true);
+      // Optionally redirect after a delay
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 3000);
+    } else {
+      setError(data.message || 'Signup failed');
     }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/signup', { // Adjust this URL to match your backend endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important for cookies
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Signup successful
-        setSuccess(true);
-        // Optionally redirect after a delay
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 3000);
-      } else {
-        setError(data.message || 'Signup failed');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+  } catch (err: any) {
+    // Handle axios error response
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (err.message) {
+      setError(err.message);
+    } else {
+      setError('Network error. Please try again.');
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const isFormValid = formData.name && formData.email && formData.password;
 
