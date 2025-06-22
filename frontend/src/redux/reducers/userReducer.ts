@@ -1,4 +1,5 @@
 interface UserState{
+    id:number,
     name:string,
     email:string,
     password:string,
@@ -9,6 +10,7 @@ interface UserState{
 }
 
 const initialState:UserState={
+    id:0,
     name:'',
     email:'',
     password:'',
@@ -22,6 +24,7 @@ type UserAction=
     |{
         type:'SET_USER',
         payload:{
+            id:number;
             name:string;
             email:string;
             password:string;
@@ -39,6 +42,7 @@ function userReducer(state:UserState=initialState,action:UserAction):UserState{
         case 'SET_USER':
             return{
                 ...state,
+                id:action.payload.id,
                 name:action.payload.name,
                 email:action.payload.email,
                 password:action.payload.password,

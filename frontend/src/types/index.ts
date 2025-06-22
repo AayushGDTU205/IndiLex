@@ -1,14 +1,13 @@
 export interface Lawyer {
   id: number;
   name: string;
-  specialization: string;
-  experience: string;
-  rating: number;
-  location: string;
-  phone: string;
   email: string;
-  cases: number;
-  image: string;
+  location: string;
+  address: string;
+  barLicenseNumber: string;
+  Specialization: string;
+  court: string;
+  practiceSince: number;
 }
 
 export interface NewsArticle {
@@ -39,6 +38,24 @@ export interface LawyerFormData {
   pincode: string;
   bio: string;
   fees: string;
+}
+
+export interface UserReq {
+  id?: number;
+  name: string;
+  email: string;
+  contact: number;
+  caseDesc: string;
+  userID?: number;
+  laywerID: number;
+}
+
+export interface CaseFormData {
+  name: string;
+  email: string;
+  contact: string;
+  caseDesc: string;
+  lawyerID: number;
 }
 
 export type ActiveTab = 'lawyers' | 'news' | 'register';

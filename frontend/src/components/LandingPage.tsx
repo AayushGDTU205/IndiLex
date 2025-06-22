@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Menu, X, Scale, Shield, Users, Clock, ArrowRight, Phone, Mail, MapPin } from 'lucide-react';
 
 const LandingPage = () => {

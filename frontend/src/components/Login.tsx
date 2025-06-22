@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   const userData = useSelector((state: RootState) => state.userReducer);
-
+  console.log(userData);
 // Add this useEffect to monitor state changes
 useEffect(() => {
     
@@ -59,6 +59,7 @@ useEffect(() => {
     if (data.success) {
       
       // Dispatch the action
+      console.log(data.data);
       dispatch({ type: 'SET_USER', payload: data.data });
       
       

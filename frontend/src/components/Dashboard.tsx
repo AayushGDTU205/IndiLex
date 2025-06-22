@@ -3,7 +3,6 @@ import type { ActiveTab, Lawyer, LawyerFormData } from '../types';
 import LawyersList from './LawyerList';
 import NewsSection from './NewsSection';
 import LawyerRegistration from './LawyerRegistration';
-import { verifiedLawyers } from '../data/mockData';
 import { 
   Scale, 
   Users, 
@@ -12,19 +11,26 @@ import {
   User,
   LogOut
 } from 'lucide-react';
+import CaseForm from './CaseForm';
+
+import { useSelector } from 'react-redux';
+import type { RootState } from '../redux/store/store';
 // import instance from '../utils/Axios';
 
 
 const Dashboard: React.FC = () => {
+  const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
+  const [isCaseFormOpen, setIsCaseFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('lawyers');
-  const handleContactLawyer = (lawyer: Lawyer) => {
-  alert(`Contacting ${lawyer.name}. In a real app, this would open a contact form or messaging interface.`);
-};
-
-const handleViewProfile = (lawyer: Lawyer) => {
-  alert(`Viewing profile of ${lawyer.name}. In a real app, this would show detailed profile information.`);
-};
-
+  const userData=useSelector((state: RootState) => state.userReducer);
+const handleSendCase = (lawyer: Lawyer) => {
+    setSelectedLawyer(lawyer);
+    setIsCaseFormOpen(true);
+  };
+  const handleCloseCaseForm = () => {
+    setIsCaseFormOpen(false);
+    setSelectedLawyer(null);
+  };
 const handleLawyerRegistration = (data: LawyerFormData) => {
   console.log('Lawyer registration submitted:', data);
   // In a real app, you would send this data to your backend API
@@ -96,12 +102,18 @@ const handleLawyerRegistration = (data: LawyerFormData) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   {activeTab === 'lawyers' && (
     <LawyersList 
-      lawyers={ verifiedLawyers}
-      onContactLawyer={handleContactLawyer}
-      onViewProfile={handleViewProfile}
+      onSendCase={handleSendCase}
+      // onViewProfile={handleViewProfile}
     />
   )}
-  
+  {selectedLawyer && (
+          <CaseForm
+            lawyer={selectedLawyer}
+            isOpen={isCaseFormOpen}
+            onClose={handleCloseCaseForm}
+            user={userData}
+          />
+  )}
   {activeTab === 'news' && (
     <NewsSection />
   )}
