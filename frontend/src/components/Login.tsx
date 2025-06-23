@@ -28,12 +28,14 @@ const Login = () => {
   };
 
   const userData = useSelector((state: RootState) => state.userReducer);
-  console.log(userData);
 // Add this useEffect to monitor state changes
 useEffect(() => {
     
     // Check if user is logged in (adjust this condition based on your state structure)
-    if (userData && userData.isLoggedIn) {
+    if(userData && userData.isLoggedIn && userData.isAdmin){
+      navigate('/adminDashboard');
+    }
+    else if (userData && userData.isLoggedIn) {
       navigate('/dashboard');
     }
     

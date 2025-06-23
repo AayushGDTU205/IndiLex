@@ -46,6 +46,19 @@ export interface LawyerFormData {
   practiceSince: string;
 }
 
+export interface LawyerRequest {
+  id: number;
+  name: string;
+  email: string;
+  location: string;
+  address: string;
+  barLicenseNumber: string;
+  Specialization: string;
+  court: string;
+  practiceSince: number;
+  userId: number;
+}
+
 export interface UserReq {
   id?: number;
   name: string;
