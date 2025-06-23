@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
 import { UserPlus } from 'lucide-react';
-import type { LawyerFormData } from '../types';
+import type { LawyerFormData,User } from '../types';
+import instance from '../utils/Axios';
+
+
+// Updated interface to match backend model
+
 
 interface LawyerRegistrationProps {
   onSubmit?: (data: LawyerFormData) => void;
+  user:User;
 }
 
-const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => {
+const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit,user }) => {
   const [formData, setFormData] = useState<LawyerFormData>({
-    fullName: '',
-    email: '',
-    phone: '',
-    barCouncilId: '',
-    practiceAreas: [],
-    experience: '',
-    education: '',
+    name: user.name,
+    email: user.email,
+    location: '',
     address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    bio: '',
-    fees: ''
+    barLicenseNumber: '',
+    Specialization: '',
+    court: '',
+    practiceSince: ''
   });
 
-  const practiceAreaOptions: string[] = [
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Create axios instance (you might want to move this to a separate config file)
+  const specializationOptions: string[] = [
     'Civil Law', 'Criminal Law', 'Family Law', 'Corporate Law', 
     'Property Law', 'Labour Law', 'Tax Law', 'Immigration Law',
     'Intellectual Property', 'Environmental Law'
@@ -37,35 +43,69 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
     }));
   };
 
-  const handlePracticeAreaChange = (area: string): void => {
-    setFormData(prev => ({
-      ...prev,
-      practiceAreas: prev.practiceAreas.includes(area)
-        ? prev.practiceAreas.filter(a => a !== area)
-        : [...prev.practiceAreas, area]
-    }));
-  };
-
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
-    onSubmit?.(formData);
-    alert('Registration submitted successfully! We will review your application and get back to you.');
-    // Reset form
-    setFormData({
-      fullName: '',
-      email: '',
-      phone: '',
-      barCouncilId: '',
-      practiceAreas: [],
-      experience: '',
-      education: '',
-      address: '',
-      city: '',
-      state: '',
-      pincode: '',
-      bio: '',
-      fees: ''
-    });
+    
+    // Clear previous messages
+    setError('');
+    setSuccessMessage('');
+    
+    // Basic validation
+    const requiredFields = ['name', 'email', 'location', 'address', 'barLicenseNumber', 'Specialization', 'court', 'practiceSince'];
+    const missingFields = requiredFields.filter(field => !formData[field as keyof LawyerFormData]);
+    
+    if (missingFields.length > 0) {
+      setError(`Please fill all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await instance.post('/LaywerFillUp', formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+
+      if (data.success) {
+        console.log('Registration successful:', data.data);
+        setSuccessMessage('Registration submitted successfully! We will review your application and get back to you.');
+        
+        // Call the optional onSubmit prop if provided
+        onSubmit?.(formData);
+        
+        // Reset form after successful submission
+        setFormData({
+          name: '',
+          email: '',
+          location: '',
+          address: '',
+          barLicenseNumber: '',
+          Specialization: '',
+          court: '',
+          practiceSince: ''
+        });
+        
+      } else {
+        console.log('Registration failed:', data.message);
+        setError(data.message || 'Registration failed');
+      }
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Network error. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,6 +117,19 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
       
       <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl">
         <div className="space-y-6">
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+          
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-700 text-sm">{successMessage}</p>
+            </div>
+          )}
+
           {/* Personal Information */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
@@ -87,8 +140,9 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
                 </label>
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="name"
+                  value={formData.name}
+                  readOnly
                   onChange={handleInputChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
@@ -102,6 +156,7 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
                   type="email"
                   name="email"
                   value={formData.email}
+                  readOnly
                   onChange={handleInputChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
@@ -109,25 +164,26 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bar Council ID *
+                  Location *
                 </label>
                 <input
                   type="text"
-                  name="barCouncilId"
-                  value={formData.barCouncilId}
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="City, State"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bar License Number *
+                </label>
+                <input
+                  type="text"
+                  name="barLicenseNumber"
+                  value={formData.barLicenseNumber}
                   onChange={handleInputChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
@@ -142,71 +198,57 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Practice Areas *
+                    Specialization *
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {practiceAreaOptions.map(area => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {specializationOptions.map(area => (
                     <label key={area} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.practiceAreas.includes(area)}
-                        onChange={() => handlePracticeAreaChange(area)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">{area}</span>
+                        <input
+                        type="radio"
+                        name="Specialization"
+                        value={area}
+                        checked={formData.Specialization === area}
+                        onChange={handleInputChange}
+                        required
+                        className="text-blue-600 focus:ring-blue-500 border-gray-300"
+                        />
+                        <span className="text-sm text-gray-700">{area}</span>
                     </label>
-                  ))}
+                    ))}
                 </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Years of Experience *
-                  </label>
-                  <select
-                    name="experience"
-                    value={formData.experience}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">Select experience</option>
-                    <option value="1-3">1-3 years</option>
-                    <option value="4-7">4-7 years</option>
-                    <option value="8-15">8-15 years</option>
-                    <option value="15+">15+ years</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Education *
+                    Court *
                   </label>
                   <input
                     type="text"
-                    name="education"
-                    value={formData.education}
+                    name="court"
+                    value={formData.court}
                     onChange={handleInputChange}
-                    placeholder="e.g., LLB from Delhi University"
+                    placeholder="e.g., Delhi High Court, Supreme Court"
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Consultation Fees (per hour) *
-                </label>
-                <input
-                  type="number"
-                  name="fees"
-                  value={formData.fees}
-                  onChange={handleInputChange}
-                  placeholder="₹ 0000"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Practicing Since (Year) *
+                  </label>
+                  <input
+                    type="number"
+                    name="practiceSince"
+                    value={formData.practiceSince}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 2015"
+                    min="1950"
+                    max={new Date().getFullYear()}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -214,87 +256,35 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit }) => 
           {/* Address Information */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Address Information</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
-                </label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  required
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    State *
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    PIN Code *
-                  </label>
-                  <input
-                    type="text"
-                    name="pincode"
-                    value={formData.pincode}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Office/Practice Address *
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                required
+                rows={3}
+                placeholder="Enter your complete office or practice address"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
-          </div>
-
-          {/* Bio */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Professional Bio
-            </label>
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleInputChange}
-              rows={4}
-              placeholder="Tell us about your experience, achievements, and specializations..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
           </div>
 
           {/* Submit Button */}
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              disabled={isLoading}
+              className={`px-8 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white`}
             >
               <UserPlus className="h-4 w-4" />
-              <span>Submit Registration</span>
+              <span>{isLoading ? 'Submitting...' : 'Submit Registration'}</span>
             </button>
           </div>
         </div>

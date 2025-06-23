@@ -121,6 +121,7 @@ const handleLawyerRegistration = (data: LawyerFormData) => {
   {activeTab === 'register' && (
     <LawyerRegistration 
       onSubmit={handleLawyerRegistration}
+      user={userData}
     />
   )}
 </main>

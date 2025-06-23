@@ -1,3 +1,14 @@
+export interface User{
+    id:number,
+    name:string,
+    email:string,
+    password:string,
+    formStatus:string,
+    isLawyer:boolean,
+    isAdmin:boolean,
+    isLoggedIn:boolean
+}
+
 export interface Lawyer {
   id: number;
   name: string;
@@ -25,19 +36,14 @@ export interface NewsArticle {
 }
 
 export interface LawyerFormData {
-  fullName: string;
+  name: string;
   email: string;
-  phone: string;
-  barCouncilId: string;
-  practiceAreas: string[];
-  experience: string;
-  education: string;
+  location: string;
   address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  bio: string;
-  fees: string;
+  barLicenseNumber: string;
+  Specialization: string;
+  court: string;
+  practiceSince: string;
 }
 
 export interface UserReq {
