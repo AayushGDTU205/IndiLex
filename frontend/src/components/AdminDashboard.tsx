@@ -18,6 +18,8 @@ import type { LawyerRequest } from '../types';
 import instance from '../utils/Axios';
 import axios from 'axios';
 import LogoutConfirmation from './LogoutConfirmation';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 
 const AdminDashboard: React.FC = () => {
@@ -25,7 +27,8 @@ const AdminDashboard: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
-
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   useEffect(() => {
     
     const fetchLawyerRequests = async () => {
@@ -90,15 +93,20 @@ const AdminDashboard: React.FC = () => {
   const handleLogoutCancel = () => {
     setIsLogoutModalOpen(false);
   };
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm =async () => {
     setIsLogoutModalOpen(false);
     // Add your logout logic here
+   try{
+    const response=await instance.post('/logout');
+    if(response.status===200){
+      dispatch({ type: 'LOGOUT_USER', payload: response.data.data });
+      navigate('/login');
+    }
+   }
+   catch(error){
+    console.log(error);
+   }
     console.log('User logged out');
-    // For example:
-    // - Clear user data from Redux store
-    // - Clear localStorage/sessionStorage
-    // - Redirect to login page
-    // - Call logout API endpoint
   };
   const handleReject = async (request: LawyerRequest) => {
     setProcessingIds(prev => new Set(prev).add(request.id));

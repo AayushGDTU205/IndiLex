@@ -545,3 +545,21 @@ export const getMe=responseHandler(async(req:Request,res:Response,next:NextFunct
     throw new ErrorHandler(error.statusCode||500,false,"server failure");
   }
 })
+
+export const postLogout=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    const options: CookieOptions = {
+          httpOnly: true,
+          expires: new Date(0), 
+          secure: true,
+          sameSite: 'none', // requires HTTPS
+        };
+
+   res.status(200).cookie("accessToken","",options).json({
+          message:"logged out succesfully"
+        }); 
+  }
+  catch(error:any){
+    throw new ErrorHandler(error.statusCode||500,false,"server failure");
+  }
+})

@@ -41,12 +41,12 @@ function App() {
           dispatch({ type: 'SET_USER', payload: response.data.data });
         }
         else{
-          navigate('/login');
+          navigate('/');
         }
       }
       catch(error:any){
         if(error.message==='server failure' || error.response.status>399){
-          navigate('/login');
+          navigate('/');
         }
       }
     }

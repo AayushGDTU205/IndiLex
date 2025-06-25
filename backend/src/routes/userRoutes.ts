@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getKhabar, getLawyers, getMe, postLawyerFillUp, postLogin, postSignup, sendReqToLawyer } from "../controllers/UserController";
+import { getKhabar, getLawyers, getMe, postLawyerFillUp, postLogin, postLogout, postSignup, sendReqToLawyer } from "../controllers/UserController";
 import { verifyJwt } from "../middlewares/verifyJWT";
 const router=Router();
 
@@ -15,4 +15,5 @@ router.get('/getLawyers',verifyJwt,getLawyers);
 router.post('/sendReqToLawyer',verifyJwt,sendReqToLawyer);
 router.get('/news',verifyJwt,getKhabar);
 router.get('/me',verifyJwt,getMe);
+router.post('/logout',postLogout);
 export default router;

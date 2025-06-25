@@ -36,6 +36,9 @@ type UserAction=
     |{
         type:'GET_USER';
     }
+    |{
+        type:'LOGOUT_USER';
+    }
 
 function userReducer(state:UserState=initialState,action:UserAction):UserState{
     switch(action.type){
@@ -53,6 +56,18 @@ function userReducer(state:UserState=initialState,action:UserAction):UserState{
             };
         case 'GET_USER':
             return state;
+        case 'LOGOUT_USER':
+            return{
+                ...state,
+                id:0,
+                name:'',
+                email:'',
+                password:'',
+                formStatus:'',
+                isLawyer:false,
+                isAdmin:false,
+                isLoggedIn:false
+            }
         default:
             return state;
     }

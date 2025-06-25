@@ -16,7 +16,9 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const handleSignUp = () => {
+  navigate('/signup');
+  };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -206,7 +208,7 @@ useEffect(() => {
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
               <a
-                href="/signup"
+                onClick={handleSignUp}
                 className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
               >
                 Create one here

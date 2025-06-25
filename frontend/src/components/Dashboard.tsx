@@ -16,6 +16,9 @@ import CaseForm from './CaseForm';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store/store';
 import LogoutConfirmation from './LogoutConfirmation';
+import instance from '../utils/Axios';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 // import instance from '../utils/Axios';
 
 
@@ -25,6 +28,8 @@ const Dashboard: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('lawyers');
   const userData=useSelector((state: RootState) => state.userReducer);
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
 const handleSendCase = (lawyer: Lawyer) => {
     setSelectedLawyer(lawyer);
     setIsCaseFormOpen(true);
@@ -39,15 +44,20 @@ const handleSendCase = (lawyer: Lawyer) => {
   const handleLogoutCancel = () => {
     setIsLogoutModalOpen(false);
   };
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm =async () => {
     setIsLogoutModalOpen(false);
     // Add your logout logic here
+   try{
+    const response=await instance.post('/logout');
+    if(response.status===200){
+      dispatch({ type: 'LOGOUT_USER', payload: response.data.data });
+      navigate('/login');
+    }
+   }
+   catch(error){
+    console.log(error);
+   }
     console.log('User logged out');
-    // For example:
-    // - Clear user data from Redux store
-    // - Clear localStorage/sessionStorage
-    // - Redirect to login page
-    // - Call logout API endpoint
   };
 const handleLawyerRegistration = (data: LawyerFormData) => {
   console.log('Lawyer registration submitted:', data);
@@ -67,7 +77,7 @@ const handleLawyerRegistration = (data: LawyerFormData) => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-gray-600">
                 <User className="h-5 w-5" />
-                <span>Welcome, User</span>
+                <span>Welcome, {userData.name}</span>
               </div>
               <button
                 onClick={handleLogoutClick} 

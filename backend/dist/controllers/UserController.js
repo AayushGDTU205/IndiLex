@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMe = exports.getKhabar = exports.sendReqToLawyer = exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
+exports.postLogout = exports.getMe = exports.getKhabar = exports.sendReqToLawyer = exports.getLawyers = exports.postLawyerFillUp = exports.postLogin = exports.postSignup = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const responseHandler_1 = require("../utils/responseHandler");
@@ -485,6 +485,22 @@ exports.getMe = (0, responseHandler_1.responseHandler)((req, res, next) => __awa
             message: 'logged in',
             isLoggedIn: true,
             data: req.user
+        });
+    }
+    catch (error) {
+        throw new errorHandler_1.default(error.statusCode || 500, false, "server failure");
+    }
+}));
+exports.postLogout = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const options = {
+            httpOnly: true,
+            expires: new Date(0),
+            secure: true,
+            sameSite: 'none', // requires HTTPS
+        };
+        res.status(200).cookie("accessToken", "", options).json({
+            message: "logged out succesfully"
         });
     }
     catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Scale, Eye, EyeOff, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import instance from '../utils/Axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-
+  const navigate=useNavigate();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -22,7 +23,9 @@ const Signup = () => {
     // Clear error when user starts typing
     if (error) setError('');
   };
-
+  const handleLogin = () => {
+  navigate('/login');
+ };
   const validateForm = () => {
     if (!formData.name.trim()) {
       setError('Please enter your full name');
@@ -289,7 +292,7 @@ const Signup = () => {
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <a
-                href="/login"
+                onClick={handleLogin}
                 className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
               >
                 Sign in here

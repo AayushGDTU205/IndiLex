@@ -19,6 +19,8 @@ import NewsSection from './NewsSection';
 import type { UserReq, ReviewedUserReq, ActiveTab } from '../types/lawyer';
 import instance from '../utils/Axios';
 import LogoutConfirmation from './LogoutConfirmation';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const LawyerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('cases');
@@ -26,7 +28,8 @@ const LawyerDashboard: React.FC = () => {
   const [reviewedCases, setReviewedCases] = useState<ReviewedUserReq[]>([]);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   
   useEffect(() => {
     fetchPendingCases();
@@ -39,15 +42,20 @@ const LawyerDashboard: React.FC = () => {
   const handleLogoutCancel = () => {
     setIsLogoutModalOpen(false);
   };
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm =async () => {
     setIsLogoutModalOpen(false);
     // Add your logout logic here
+   try{
+    const response=await instance.post('/logout');
+    if(response.status===200){
+      dispatch({ type: 'LOGOUT_USER', payload: response.data.data });
+      navigate('/login');
+    }
+   }
+   catch(error){
+    console.log(error);
+   }
     console.log('User logged out');
-    // For example:
-    // - Clear user data from Redux store
-    // - Clear localStorage/sessionStorage
-    // - Redirect to login page
-    // - Call logout API endpoint
   };
   const fetchPendingCases = async () => {
     try {

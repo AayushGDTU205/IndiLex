@@ -1,9 +1,18 @@
 import { useState } from 'react';
 import { Menu, X, Scale, Shield, Users, Clock, ArrowRight, Phone, Mail, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
+const handleLogin = () => {
+  navigate('/login');
+};
+
+const handleSignUp = () => {
+  navigate('/signup');
+};
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -23,12 +32,18 @@ const LandingPage = () => {
 
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
-              <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                Login
-              </a>
-              <a href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+              onClick={handleLogin}
+              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+              Login
+              </button>
+              <button 
+               onClick={handleSignUp}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
                 Sign Up
-              </a>
+                </button>
             </div>
 
             {/* Mobile menu button */}
