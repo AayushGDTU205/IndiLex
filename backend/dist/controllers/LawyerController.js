@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RejectCase = exports.AcceptCase = exports.getUserReq = void 0;
+exports.getReviewedCases = exports.RejectCase = exports.AcceptCase = exports.getUserReq = void 0;
 const db_1 = require("../lib/db");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
 const responseHandler_1 = require("../utils/responseHandler");
@@ -188,7 +188,7 @@ exports.RejectCase = (0, responseHandler_1.responseHandler)((req, res, next) => 
         const info = yield transporter.sendMail({
             from: '"IndiLex" <no-reply@indilex.in>',
             to: Case.email,
-            subject: `📬 New Case Request from a Client`,
+            subject: `Case Request Update`,
             text: "Hello world?", // plain‑text body
             html: `<!DOCTYPE html>
                         <html lang="en">
@@ -231,6 +231,28 @@ exports.RejectCase = (0, responseHandler_1.responseHandler)((req, res, next) => 
             message: "case accept success",
             success: true,
             data: [pastCase, del]
+        });
+    }
+    catch (error) {
+        throw new errorHandler_1.default(error.statusCode || 500, false, error.message || "server failure");
+    }
+}));
+exports.getReviewedCases = (0, responseHandler_1.responseHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const User = req.user;
+        if (!User) {
+            throw new errorHandler_1.default(400, false, "Unauthorized, Invalid User Access");
+        }
+        // finding my lawyer credentials
+        const findMe = yield db_1.prisma.lawyer.findUnique({ where: { email: User.email } });
+        if (!findMe) {
+            throw new errorHandler_1.default(400, false, "Server is facing internal issue, logout and login again");
+        }
+        const Cases = yield db_1.prisma.reviewedUserReq.findMany({ where: { laywerID: findMe.id } });
+        res.status(200).json({
+            success: true,
+            message: "cases retrieved",
+            data: Cases
         });
     }
     catch (error) {

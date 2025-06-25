@@ -35,6 +35,9 @@ useEffect(() => {
     if(userData && userData.isLoggedIn && userData.isAdmin){
       navigate('/adminDashboard');
     }
+    else if(userData && userData.isLoggedIn && userData.isLawyer){
+      navigate('/lawyerDashboard');
+    }
     else if (userData && userData.isLoggedIn) {
       navigate('/dashboard');
     }

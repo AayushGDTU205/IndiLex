@@ -15,21 +15,39 @@ import CaseForm from './CaseForm';
 
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store/store';
+import LogoutConfirmation from './LogoutConfirmation';
 // import instance from '../utils/Axios';
 
 
 const Dashboard: React.FC = () => {
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
   const [isCaseFormOpen, setIsCaseFormOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('lawyers');
   const userData=useSelector((state: RootState) => state.userReducer);
 const handleSendCase = (lawyer: Lawyer) => {
     setSelectedLawyer(lawyer);
     setIsCaseFormOpen(true);
   };
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
   const handleCloseCaseForm = () => {
     setIsCaseFormOpen(false);
     setSelectedLawyer(null);
+  };
+  const handleLogoutCancel = () => {
+    setIsLogoutModalOpen(false);
+  };
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false);
+    // Add your logout logic here
+    console.log('User logged out');
+    // For example:
+    // - Clear user data from Redux store
+    // - Clear localStorage/sessionStorage
+    // - Redirect to login page
+    // - Call logout API endpoint
   };
 const handleLawyerRegistration = (data: LawyerFormData) => {
   console.log('Lawyer registration submitted:', data);
@@ -51,7 +69,9 @@ const handleLawyerRegistration = (data: LawyerFormData) => {
                 <User className="h-5 w-5" />
                 <span>Welcome, User</span>
               </div>
-              <button className="text-gray-500 hover:text-red-600 transition-colors">
+              <button
+                onClick={handleLogoutClick} 
+                className="text-gray-500 hover:text-red-600 transition-colors">
                 <LogOut className="h-5 w-5" />
               </button>
             </div>
@@ -125,6 +145,11 @@ const handleLawyerRegistration = (data: LawyerFormData) => {
     />
   )}
 </main>
+    <LogoutConfirmation
+        isOpen={isLogoutModalOpen}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
     
   )

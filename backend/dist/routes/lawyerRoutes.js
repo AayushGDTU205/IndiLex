@@ -6,4 +6,5 @@ const router = (0, express_1.Router)();
 router.get('/getCases', LawyerController_1.getUserReq);
 router.post('/accept', LawyerController_1.AcceptCase);
 router.post('/reject', LawyerController_1.RejectCase);
+router.get('/getRevCases', LawyerController_1.getReviewedCases);
 exports.default = router;

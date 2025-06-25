@@ -11,15 +11,18 @@ import {
   X,
   User,
   Clock,
-  AlertCircle
+  AlertCircle,
+  LogOut
 } from 'lucide-react';
 import type { LawyerRequest } from '../types';
 import instance from '../utils/Axios';
 import axios from 'axios';
+import LogoutConfirmation from './LogoutConfirmation';
 
 
 const AdminDashboard: React.FC = () => {
   const [lawyerRequests, setLawyerRequests] = useState<LawyerRequest[]>([]);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
 
@@ -81,7 +84,22 @@ const AdminDashboard: React.FC = () => {
       });
     }
   };
-
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+  const handleLogoutCancel = () => {
+    setIsLogoutModalOpen(false);
+  };
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false);
+    // Add your logout logic here
+    console.log('User logged out');
+    // For example:
+    // - Clear user data from Redux store
+    // - Clear localStorage/sessionStorage
+    // - Redirect to login page
+    // - Call logout API endpoint
+  };
   const handleReject = async (request: LawyerRequest) => {
     setProcessingIds(prev => new Set(prev).add(request.id));
     
@@ -148,6 +166,11 @@ const AdminDashboard: React.FC = () => {
                 <User className="h-5 w-5" />
                 <span>Admin</span>
               </div>
+              <button 
+                onClick={handleLogoutClick} 
+                className="text-gray-500 hover:text-red-600 transition-colors">
+                <LogOut className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>
@@ -279,6 +302,11 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </main>
+      <LogoutConfirmation
+        isOpen={isLogoutModalOpen}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

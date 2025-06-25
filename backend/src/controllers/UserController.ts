@@ -526,3 +526,22 @@ res.status(200).json({
     throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure")
   }
 })
+
+export const getMe=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
+  try{
+    if(!req.user){
+      return res.status(404).json({
+        message: 'not logged in',
+        isLoggedIn: false
+      })
+    }
+      res.status(200).json({
+            message: 'logged in',
+            isLoggedIn: true,
+            data:req.user
+      })
+    }
+  catch(error:any){
+    throw new ErrorHandler(error.statusCode||500,false,"server failure");
+  }
+})

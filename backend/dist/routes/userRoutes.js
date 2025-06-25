@@ -14,4 +14,5 @@ router.post('/LaywerFillUp', verifyJWT_1.verifyJwt, UserController_1.postLawyerF
 router.get('/getLawyers', verifyJWT_1.verifyJwt, UserController_1.getLawyers);
 router.post('/sendReqToLawyer', verifyJWT_1.verifyJwt, UserController_1.sendReqToLawyer);
 router.get('/news', verifyJWT_1.verifyJwt, UserController_1.getKhabar);
+router.get('/me', verifyJWT_1.verifyJwt, UserController_1.getMe);
 exports.default = router;

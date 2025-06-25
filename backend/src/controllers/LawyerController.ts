@@ -181,7 +181,7 @@ export const RejectCase=responseHandler(async(req:Request<{},{},requestBody>,res
             const info = await transporter.sendMail({
                     from: '"IndiLex" <no-reply@indilex.in>',
                     to: Case.email,
-                    subject: `📬 New Case Request from a Client`,
+                    subject: `Case Request Update`,
                     text: "Hello world?", // plain‑text body
                     html: `<!DOCTYPE html>
                         <html lang="en">
@@ -224,6 +224,30 @@ export const RejectCase=responseHandler(async(req:Request<{},{},requestBody>,res
             message:"case accept success",
             success:true,
             data:[pastCase,del]
+        })
+    }
+    catch(error:any){
+        throw new ErrorHandler(error.statusCode||500,false,error.message||"server failure");
+    }
+})
+
+export const getReviewedCases=responseHandler(async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+        const User=req.user;
+        if(!User){
+            throw new ErrorHandler(400,false,"Unauthorized, Invalid User Access");
+        }
+        // finding my lawyer credentials
+        const findMe=await prisma.lawyer.findUnique({where:{email:User.email}});
+        if(!findMe){
+            throw new ErrorHandler(400,false,"Server is facing internal issue, logout and login again");
+        }
+
+        const Cases=await prisma.reviewedUserReq.findMany({where:{laywerID:findMe.id}});
+        res.status(200).json({
+            success:true,
+            message:"cases retrieved",
+            data:Cases
         })
     }
     catch(error:any){
