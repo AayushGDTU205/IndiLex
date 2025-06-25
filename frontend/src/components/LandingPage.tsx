@@ -16,9 +16,9 @@ const LandingPage = () => {
               <span className="text-2xl font-bold text-gray-900">IndiLex</span>
             </div>
 
-            {/* Desktop Navigation - Removed internal links */}
+            
             <div className="hidden md:flex items-center space-x-8">
-              {/* Only login/signup links will be shown */}
+              
             </div>
 
             {/* Auth Buttons - Desktop */}

@@ -26,7 +26,6 @@ const LawyersList: React.FC<LawyersListProps> = ({
   const [error, setError] = useState<string>('');
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Fetch lawyers from API using configured axios instance
   const fetchLawyers = async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -49,22 +48,22 @@ const LawyersList: React.FC<LawyersListProps> = ({
         throw new Error(response.data.message || 'Failed to fetch lawyers');
       }
     } catch (err: any) {
-      // Enhanced error handling for axios
+     
       let errorMessage = 'Failed to fetch lawyers';
       
       if (err.response) {
-        // Server responded with error status
+        
         errorMessage = `Server Error (${err.response.status}): ${
           err.response.data?.message || err.message
         }`;
       } else if (err.request) {
-        // Request was made but no response received
+        
         errorMessage = 'Network Error: Unable to connect to server. Please check your internet connection.';
       } else if (err.code === 'ECONNABORTED') {
-        // Request timeout
+       
         errorMessage = 'Request timeout: Server is taking too long to respond.';
       } else {
-        // Something else happened
+       
         errorMessage = err.message || 'An unexpected error occurred';
       }
       

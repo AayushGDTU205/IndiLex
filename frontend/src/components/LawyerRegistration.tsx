@@ -4,9 +4,6 @@ import type { LawyerFormData,User } from '../types';
 import instance from '../utils/Axios';
 
 
-// Updated interface to match backend model
-
-
 interface LawyerRegistrationProps {
   onSubmit?: (data: LawyerFormData) => void;
   user:User;
@@ -28,7 +25,7 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit,user }
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  // Create axios instance (you might want to move this to a separate config file)
+  
   const specializationOptions: string[] = [
     'Civil Law', 'Criminal Law', 'Family Law', 'Corporate Law', 
     'Property Law', 'Labour Law', 'Tax Law', 'Immigration Law',
@@ -46,11 +43,11 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit,user }
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
     
-    // Clear previous messages
+   
     setError('');
     setSuccessMessage('');
     
-    // Basic validation
+    
     const requiredFields = ['name', 'email', 'location', 'address', 'barLicenseNumber', 'Specialization', 'court', 'practiceSince'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof LawyerFormData]);
     
@@ -75,10 +72,10 @@ const LawyerRegistration: React.FC<LawyerRegistrationProps> = ({ onSubmit,user }
         console.log('Registration successful:', data.data);
         setSuccessMessage('Registration submitted successfully! We will review your application and get back to you.');
         
-        // Call the optional onSubmit prop if provided
+       
         onSubmit?.(formData);
         
-        // Reset form after successful submission
+      
         setFormData({
           name: '',
           email: '',

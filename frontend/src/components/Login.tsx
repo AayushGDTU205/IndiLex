@@ -23,15 +23,15 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
+  
     if (error) setError('');
   };
 
   const userData = useSelector((state: RootState) => state.userReducer);
-// Add this useEffect to monitor state changes
+
 useEffect(() => {
     
-    // Check if user is logged in (adjust this condition based on your state structure)
+   
     if(userData && userData.isLoggedIn && userData.isAdmin){
       navigate('/adminDashboard');
     }
@@ -61,17 +61,8 @@ useEffect(() => {
 
 
     if (data.success) {
-      
-      // Dispatch the action
-      console.log(data.data);
+    
       dispatch({ type: 'SET_USER', payload: data.data });
-      
-      
-      // Add a small delay before redirect to see if state updates
-      // setTimeout(() => {
-      //   // window.location.href = '/dashboard';
-      // }, 500);
-      
     } else {
       console.log('Login failed:', data.message);
       setError(data.message || 'Login failed');

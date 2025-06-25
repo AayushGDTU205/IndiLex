@@ -9,13 +9,13 @@ import {
   LogOut
 } from 'lucide-react';
 
-// Import components
+
 import PendingCasesTab from './PendingCasesTab';
 import AcceptedCasesTab from './AcceptedCasesTab';
 import AllCasesTab from './AllCasesTab';
 import NewsSection from './NewsSection'; 
 
-// Import types
+
 import type { UserReq, ReviewedUserReq, ActiveTab } from '../types/lawyer';
 import instance from '../utils/Axios';
 import LogoutConfirmation from './LogoutConfirmation';
@@ -27,7 +27,7 @@ const LawyerDashboard: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Fetch data on component mount
+  
   useEffect(() => {
     fetchPendingCases();
     fetchReviewedCases();
@@ -52,7 +52,7 @@ const LawyerDashboard: React.FC = () => {
   const fetchPendingCases = async () => {
     try {
       
-      // const response = await getUserReq();
+     
       const response= await instance.get('/lawyer/getCases');
       setPendingCases(response.data.data);
     } catch (error) {
@@ -63,7 +63,7 @@ const LawyerDashboard: React.FC = () => {
   const fetchReviewedCases = async () => {
     try {
      
-      // const response = await getReviewedCases();
+      
       const response=await instance.get('/lawyer/getRevCases');
       setReviewedCases(response.data.data);
     } catch (error) {
@@ -74,8 +74,7 @@ const LawyerDashboard: React.FC = () => {
   const handleAcceptCase = async (caseId: number) => {
     setLoading(true);
     try {
-      // Replace with actual API call
-      // const response = await acceptCase({ caseID: caseId });
+      
       const response=await instance.post('/lawyer/accept',{caseID:caseId});
       const caseToMove = pendingCases.find(c => c.id === caseId);
       if (caseToMove) {
@@ -88,7 +87,7 @@ const LawyerDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error('Error accepting case:', error);
-      // Handle error - show toast notification
+      
     } finally {
       setLoading(false);
     }
@@ -97,8 +96,7 @@ const LawyerDashboard: React.FC = () => {
   const handleRejectCase = async (caseId: number) => {
     setLoading(true);
     try {
-      // Replace with actual API call
-      // const response = await rejectCase({ caseID: caseId });
+      
       const response=await instance.post('/lawyer/reject',{caseID:caseId});
       console.log(response.data.data);
       const caseToMove = pendingCases.find(c => c.id === caseId);
@@ -112,7 +110,7 @@ const LawyerDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error('Error rejecting case:', error);
-      // Handle error - show toast notification
+      
     } finally {
       setLoading(false);
     }

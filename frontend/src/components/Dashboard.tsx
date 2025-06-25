@@ -51,7 +51,7 @@ const handleSendCase = (lawyer: Lawyer) => {
   };
 const handleLawyerRegistration = (data: LawyerFormData) => {
   console.log('Lawyer registration submitted:', data);
-  // In a real app, you would send this data to your backend API
+  
 };
   return (
     <div className="min-h-screen bg-gray-50">

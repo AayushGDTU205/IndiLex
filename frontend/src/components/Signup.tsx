@@ -68,9 +68,9 @@ const Signup = () => {
     const data = response.data;
 
     if (data.success) {
-      // Signup successful
+      
       setSuccess(true);
-      // Optionally redirect after a delay
+      
       setTimeout(() => {
         window.location.href = '/login';
       }, 3000);
@@ -78,7 +78,7 @@ const Signup = () => {
       setError(data.message || 'Signup failed');
     }
   } catch (err: any) {
-    // Handle axios error response
+    
     if (err.response?.data?.message) {
       setError(err.response.data.message);
     } else if (err.message) {

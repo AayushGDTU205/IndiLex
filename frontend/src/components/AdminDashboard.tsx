@@ -27,17 +27,17 @@ const AdminDashboard: React.FC = () => {
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    // Simulate API call
+    
     const fetchLawyerRequests = async () => {
       try {
-        // Replace with actual API call
+        
         const response=await instance.get('/admin/getLawyerReq',{
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
         },
     });
-        // const response = await fetch('/api/lawyer-requests');
+        
         console.log(response.data.data);
         setLawyerRequests(response.data.data);
         setLoading(false);
@@ -63,15 +63,15 @@ const AdminDashboard: React.FC = () => {
         },
     });
       
-      // Remove from requests list on successful approval
+      
       setLawyerRequests(prev => prev.filter(req => req.id !== request.id));
       
-      // You can add a success notification here
+      
       console.log('Successfully approved lawyer:', request.name);
       
     } catch (error) {
       console.error('Error approving lawyer:', error);
-      // Handle axios error response
+      
       const errorMessage = axios.isAxiosError(error) && error.response?.data?.message 
         ? error.response.data.message 
         : 'Failed to approve lawyer request';
@@ -113,15 +113,15 @@ const AdminDashboard: React.FC = () => {
         },
     });
       
-      // Remove from requests list on successful rejection
+      
       setLawyerRequests(prev => prev.filter(req => req.id !== request.id));
       
-      // You can add a success notification here
+      
       console.log('Successfully rejected lawyer:', request.name);
       
     } catch (error) {
       console.error('Error rejecting lawyer:', error);
-      // Handle axios error response
+      
       const errorMessage = axios.isAxiosError(error) && error.response?.data?.message 
         ? error.response.data.message 
         : 'Failed to reject lawyer request';

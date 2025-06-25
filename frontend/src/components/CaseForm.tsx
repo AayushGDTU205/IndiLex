@@ -66,7 +66,7 @@ const CaseForm: React.FC<CaseFormProps> = ({
       [name]: value
     }));
     
-    // Clear error for this field when user starts typing
+  
     if (errors[name as keyof CaseFormData]) {
       setErrors(prev => ({
         ...prev,
