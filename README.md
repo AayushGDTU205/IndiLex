@@ -69,7 +69,7 @@ INDILEX/
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/indilex.git
+git clone https://github.com/AayushGDTU205/indilex.git
 cd indilex
 ```
 
