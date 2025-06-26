@@ -83,7 +83,7 @@ const LawyerDashboard: React.FC = () => {
     setLoading(true);
     try {
       
-      const response=await instance.post('/lawyer/accept',{caseID:caseId});
+      await instance.post('/lawyer/accept',{caseID:caseId});
       const caseToMove = pendingCases.find(c => c.id === caseId);
       if (caseToMove) {
         const reviewedCase: ReviewedUserReq = {

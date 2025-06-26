@@ -57,7 +57,7 @@ const AdminDashboard: React.FC = () => {
     setProcessingIds(prev => new Set(prev).add(request.id));
     
     try {
-      const response = await instance.post('/admin/acceptLawyerReq', {
+      await instance.post('/admin/acceptLawyerReq', {
         reqID: request.id
       },{
       withCredentials: true,
@@ -112,7 +112,7 @@ const AdminDashboard: React.FC = () => {
     setProcessingIds(prev => new Set(prev).add(request.id));
     
     try {
-      const response = await instance.post('/admin/rejectLawyerReq', {
+      await instance.post('/admin/rejectLawyerReq', {
         reqID: request.id
       },{
       withCredentials: true,

@@ -90,7 +90,7 @@ const LawyersList: React.FC<LawyersListProps> = ({
   };
 
   const generateAvatar = (name: string): string => {
-    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+    name.split(' ').map(n => n[0]).join('').toUpperCase();
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3b82f6&color=ffffff&size=150`;
   };
 
