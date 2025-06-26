@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Routes, Route, useNavigate } from 'react-router-dom';
+import {Routes, Route, useNavigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login'; 
 import Signup from './components/Signup';
