@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {Routes, Route, useNavigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login'; 
@@ -12,24 +12,32 @@ import { useSelector } from 'react-redux';
 import type { RootState } from './redux/store/store';
 
 function App() {
-  let dispatch = useDispatch();
-  let navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const userData = useSelector((state: RootState) => state.userReducer);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+  // Helper function to handle navigation based on user type
+  const navigateBasedOnUser = (user: any) => {
+    if (user && user.isLoggedIn) {
+      if (user.isAdmin) {
+        navigate('/adminDashboard');
+      } else if (user.isLawyer) {
+        navigate('/lawyerDashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  };
+
+  // Initial authentication check
   useEffect(() => {
     const gettingMe = async () => {
       try {
         const response = await instance.get('/me');
         if (response.status === 200) {
           dispatch({ type: 'SET_USER', payload: response.data.data });
-          const user = response.data.data;
-          if (user && user.isLoggedIn && user.isAdmin) {
-            navigate('/adminDashboard');
-          } else if (user && user.isLoggedIn && user.isLawyer) {
-            navigate('/lawyerDashboard');
-          } else if (user && user.isLoggedIn) {
-            navigate('/dashboard');
-          }
+          navigateBasedOnUser(response.data.data);
         } else {
           navigate('/');
         }
@@ -37,23 +45,22 @@ function App() {
         if (error.message === 'server failure' || error.response?.status > 399) {
           navigate('/');
         }
+      } finally {
+        setIsInitialLoad(false);
       }
     };
 
-    gettingMe();
-  }, []);
-
-  useEffect(() => {
-    if (userData && userData.isLoggedIn) {
-      if (userData.isAdmin) {
-        navigate('/adminDashboard');
-      } else if (userData.isLawyer) {
-        navigate('/lawyerDashboard');
-      } else {
-        navigate('/dashboard');
-      }
+    if (isInitialLoad) {
+      gettingMe();
     }
-  }, [userData, navigate]);
+  }, [isInitialLoad]);
+
+  // Handle navigation when userData changes (after login/logout)
+  useEffect(() => {
+    if (!isInitialLoad && userData) {
+      navigateBasedOnUser(userData);
+    }
+  }, [userData, isInitialLoad]);
 
   return (
     <div className="App">
