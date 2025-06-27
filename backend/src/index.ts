@@ -16,7 +16,7 @@ dotenv.config();
 const app=express();
 app.use(cors({
     credentials: true,
-    origin: "https://indilex.onrender.com"
+    origin: "https://indi-lex.vercel.app"
 }))
 
 app.use(bodyParser.json());
