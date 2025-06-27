@@ -15,54 +15,57 @@ function App() {
   let dispatch = useDispatch();
   let navigate = useNavigate();
   const userData = useSelector((state: RootState) => state.userReducer);
-  if(userData && userData.isLoggedIn && userData.isAdmin){
-      navigate('/adminDashboard');
-    }
-    else if(userData && userData.isLoggedIn && userData.isLawyer){
-      navigate('/lawyerDashboard');
-    }
-    else if (userData && userData.isLoggedIn) {
-      navigate('/dashboard');
-    }
-  useEffect(()=>{
-    if(userData && userData.isLoggedIn && userData.isAdmin){
-      navigate('/adminDashboard');
-    }
-    else if(userData && userData.isLoggedIn && userData.isLawyer){
-      navigate('/lawyerDashboard');
-    }
-    else if (userData && userData.isLoggedIn) {
-      navigate('/dashboard');
-    }
-    const gettingMe=async()=>{
-      try{
-        const response=await instance.get('/me');
-        if(response.status===200){
+
+  useEffect(() => {
+    const gettingMe = async () => {
+      try {
+        const response = await instance.get('/me');
+        if (response.status === 200) {
           dispatch({ type: 'SET_USER', payload: response.data.data });
+          const user = response.data.data;
+          if (user && user.isLoggedIn && user.isAdmin) {
+            navigate('/adminDashboard');
+          } else if (user && user.isLoggedIn && user.isLawyer) {
+            navigate('/lawyerDashboard');
+          } else if (user && user.isLoggedIn) {
+            navigate('/dashboard');
+          }
+        } else {
+          navigate('/');
         }
-        else{
+      } catch (error: any) {
+        if (error.message === 'server failure' || error.response?.status > 399) {
           navigate('/');
         }
       }
-      catch(error:any){
-        if(error.message==='server failure' || error.response.status>399){
-          navigate('/');
-        }
+    };
+
+    gettingMe();
+  }, []);
+
+  useEffect(() => {
+    if (userData && userData.isLoggedIn) {
+      if (userData.isAdmin) {
+        navigate('/adminDashboard');
+      } else if (userData.isLawyer) {
+        navigate('/lawyerDashboard');
+      } else {
+        navigate('/dashboard');
       }
     }
-    gettingMe();
-  },[]);
+  }, [userData, navigate]);
+
   return (
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard/>}/>
-          <Route path="/adminDashboard" element={<AdminDashboard/>}/>
-          <Route path="/lawyerDashboard" element={<LawyerDashboard/>}/>
-        </Routes>
-      </div>
+    <div className="App">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/adminDashboard" element={<AdminDashboard/>}/>
+        <Route path="/lawyerDashboard" element={<LawyerDashboard/>}/>
+      </Routes>
+    </div>
   );
 }
 
