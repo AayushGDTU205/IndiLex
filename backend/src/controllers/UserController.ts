@@ -362,7 +362,7 @@ export const getLawyers=responseHandler(async(req:Request,res:Response,next:Next
 interface requestBody4{
   name:string,
   email:string,
-  contact:number,
+  contact:string,
   caseDesc:string,
   lawyerID:number
 }
@@ -395,7 +395,7 @@ export const sendReqToLawyer=responseHandler(async(req:Request<{},{},requestBody
       data:{
         name:name,
         email:email,
-        contact:+contact,
+        contact:contact,
         caseDesc,
         laywerID:+lawyerID,
         userID:+userID

@@ -46,7 +46,7 @@ model UserReq{
     id Int @id @default(autoincrement())
     name String
     email String
-    contact Int
+    contact String
     caseDesc String
     userID Int 
     laywerID Int 
@@ -56,7 +56,7 @@ model ReviewedUserReq{
   id Int @id @default(autoincrement())
   name String
     email String
-    contact Int
+    contact String
     caseDesc String
     userID Int 
     laywerID Int 

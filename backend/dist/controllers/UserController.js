@@ -358,7 +358,7 @@ exports.sendReqToLawyer = (0, responseHandler_1.responseHandler)((req, res, next
             data: {
                 name: name,
                 email: email,
-                contact: +contact,
+                contact: contact,
                 caseDesc,
                 laywerID: +lawyerID,
                 userID: +userID
