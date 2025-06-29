@@ -62,8 +62,8 @@ const handleSignUp = () => {
             <div className="md:hidden">
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
                 <div className="px-3 py-2 space-y-2">
-                  <a href="/login" className="block text-blue-600 font-medium">Login</a>
-                  <a href="/signup" className="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center">Sign Up</a>
+                  <a onClick={handleLogin} className="block text-blue-600 font-medium">Login</a>
+                  <a onClick={handleSignUp} className="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center">Sign Up</a>
                 </div>
               </div>
             </div>
@@ -84,11 +84,11 @@ const handleSignUp = () => {
               document assistance, and representation for all your legal needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/signup" className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center justify-center">
+              <a onClick={handleSignUp} className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors inline-flex items-center justify-center">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
-              <a href="/signup" className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors">
+              <a onClick={handleSignUp} className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors">
                 Learn More
               </a>
             </div>
@@ -133,8 +133,8 @@ const handleSignUp = () => {
               <p className="text-gray-600">Get prompt responses and consultations when you need them most.</p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-orange-50 hover:bg-orange-100 transition-colors">
-              <div className="bg-orange-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center p-6 rounded-xl bg-red-50 hover:bg-red-100 transition-colors">
+              <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Scale className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Fair Pricing</h3>

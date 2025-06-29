@@ -13,14 +13,14 @@ const NewsSection: React.FC = () => {
     setNewsError(null);
     
     try {
-      let khabar=await instance.get('/news',{
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    // console.log(khabar);
-    setNewsArticles(khabar.data.data);
+      let khabar = await instance.get('/news', {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      // console.log(khabar);
+      setNewsArticles(khabar.data.data);
     } catch (error) {
       console.error('Error fetching news:', error);
       setNewsError('Failed to load news articles. Please try again later.');
@@ -31,6 +31,12 @@ const NewsSection: React.FC = () => {
   };
 
   const formatDate = (dateString: string): string => {
+    // Handle Serper's date format (e.g., "4 months ago", "6 months ago")
+    if (dateString.includes('ago')) {
+      return dateString;
+    }
+    
+    // Fallback for standard date format
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
@@ -69,9 +75,9 @@ const NewsSection: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {newsArticles.map((article, index) => (
-            <div key={`${article.source.id}-${index}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div key={`${article.source}-${index}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <img
-                src={article.urlToImage || "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=200&fit=crop"}
+                src={article.imageUrl || "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=200&fit=crop"}
                 alt={article.title}
                 className="w-full h-48 object-cover"
                 onError={(e) => {
@@ -82,26 +88,21 @@ const NewsSection: React.FC = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                    {article.source.name}
+                    {article.source}
                   </span>
                   <div className="flex items-center text-xs text-gray-500">
                     <Calendar className="h-3 w-3 mr-1" />
-                    {formatDate(article.publishedAt)}
+                    {formatDate(article.date)}
                   </div>
                 </div>
-                {article.author && (
-                  <div className="text-xs text-gray-500 mb-2">
-                    By {article.author}
-                  </div>
-                )}
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                   {article.title}
                 </h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {article.description}
+                  {article.snippet}
                 </p>
                 <a
-                  href={article.url}
+                  href={article.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
@@ -119,4 +120,3 @@ const NewsSection: React.FC = () => {
 };
 
 export default NewsSection;
-

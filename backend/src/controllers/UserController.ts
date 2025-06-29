@@ -480,46 +480,51 @@ export const getKhabar=responseHandler(async(req:Request,res:Response,next:NextF
   try {
     const API_KEY = process.env.NEWS_API_KEY;
  
-    const response = await axios.get('https://newsapi.org/v2/everything', {
-      params: {
-        q:'india AND (law OR judgement OR court OR legislation OR "supreme court" OR "high court")',
-        language: 'en',
-        sortBy: 'publishedAt',
-        pageSize: 100,
-        apiKey: API_KEY,
-        domains: 'barandbench.com,livelaw.in,indiatoday.in,hindustantimes.com,thehindu.com,timesofindia.indiatimes.com,livemint.com'
-      }
+    let data = JSON.stringify({
+      "q": "indian laws, indian supreme court, indian high courts, indian legislatures",
+      "gl": "in",
+      "num": 20
     });
 
-    if (response.data.status === 'ok') {
-      // Filter and clean the articles
-      const articles = response.data.articles as Array<{
-        title: string;
-        description: string;
-        url: string;
-        urlToImage: string;
-        publishedAt: string;
-        source: { name: string };
-        author: string;
-      }>;
-      const filteredArticles = articles
-      .filter(article => 
-        article.title && 
-        article.description && 
-        article.urlToImage && 
-        !article.title.includes('[Removed]') &&
-        !article.description.includes('[Removed]')
-      );
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://google.serper.dev/news',
+      headers: { 
+        'X-API-KEY': API_KEY, 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    const response = await axios.request(config);
+    if (response.data && response.data.news) {
+  // Filter and clean the articles from Serper API
+  const articles = response.data.news as Array<{
+    title: string;
+    snippet: string;
+    link: string;
+    imageUrl?: string;
+    date: string;
+    source: string;
+    position: number;
+  }>;
+  
+  const filteredArticles = articles
+    .filter(article => 
+      article.title && 
+      article.snippet && 
+      article.link &&
+      !article.title.includes('[Removed]') &&
+      !article.snippet.includes('[Removed]')
+    );
 
-const limitedArticles = filteredArticles.slice(0, 50); // Or 100, your choice
-
-res.status(200).json({
-  success: true,
-  data: limitedArticles,
-  total: limitedArticles.length
-});
+    res.status(200).json({
+      success: true,
+      data: filteredArticles,
+      total: filteredArticles.length
+      });
     } else {
-      throw new ErrorHandler(400,false,'Failed to fetch news from NewsAPI');
+      throw new ErrorHandler(400,false,'Failed to fetch news from SerperAPI');
     }
   }
   catch(error:any){

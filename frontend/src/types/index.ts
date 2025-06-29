@@ -23,16 +23,12 @@ export interface Lawyer {
 
 export interface NewsArticle {
   title: string;
-  description: string;
-  url: string;
-  urlToImage: string;
-  publishedAt: string;
-  source: {
-    id: string;
-    name: string;
-  };
-  author?: string;
-  content?: string;
+  snippet: string;
+  link: string;
+  imageUrl?: string;
+  date: string;
+  source: string;
+  position: number;
 }
 
 export interface LawyerFormData {
