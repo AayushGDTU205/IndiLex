@@ -483,7 +483,8 @@ export const getKhabar=responseHandler(async(req:Request,res:Response,next:NextF
     let data = JSON.stringify({
       "q": "indian laws, indian supreme court, indian high courts, indian legislatures",
       "gl": "in",
-      "num": 20
+      "num": 20,
+      "tbs": "qdr:m"
     });
 
     let config = {

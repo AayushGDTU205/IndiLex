@@ -442,7 +442,8 @@ exports.getKhabar = (0, responseHandler_1.responseHandler)((req, res, next) => _
         let data = JSON.stringify({
             "q": "indian laws, indian supreme court, indian high courts, indian legislatures",
             "gl": "in",
-            "num": 20
+            "num": 20,
+            "tbs": "qdr:m"
         });
         let config = {
             method: 'post',
